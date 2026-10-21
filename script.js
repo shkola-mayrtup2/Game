@@ -1,244 +1,265 @@
-// --- НАСТРОЙКИ ---
+// 95+ регионов РФ
+const REGIONS = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","102","103","116","123","125","126","134","136","138","142","150","152","154","156","159","161","163","164","166","173","174","177","178","186","190","193","196","197","199","750","777","799","977","999"];
 const LETTERS = "АВЕКМНОРСТУХ";
-const REGIONS = ["01", "02", "23", "34", "47", "50", "61", "77", "78", "99", "102", "116", "123", "150", "164", "177", "196", "199", "750", "777", "799", "977", "999"];
 
-// Загрузка сохранений (или дефолтные значения)
-let state = JSON.parse(localStorage.getItem('numGenState')) || {
-    coins: 0,
-    spins: 50, // Бесплатные прокрутки
-    collection: []
+// Состояние игры (Добавлен safe для дубликатов)
+let state = JSON.parse(localStorage.getItem('numGenStateV2')) || {
+    coins: 500, 
+    spins: 100, 
+    collection: [], 
+    safe: [], 
+    autoLvl: 0, 
+    luckLvl: 0,
+    totalSpins: 0
 };
 
-// DOM
 const el = {
-    coins: document.getElementById('coinCount'),
-    spins: document.getElementById('spinCount'),
-    statusTxt: document.getElementById('statusText'),
-    rarityTxt: document.getElementById('rarityText'),
-    pL1: document.getElementById('pL1'), pNum: document.getElementById('pNum'),
-    pL2: document.getElementById('pL2'), pL3: document.getElementById('pL3'),
-    pReg: document.getElementById('pReg'),
-    plate: document.getElementById('plateElement'),
-    glow: document.getElementById('glowEffect'),
-    btn: document.getElementById('spinBtn'),
-    clickArea: document.getElementById('clickArea'),
-    floatContainer: document.getElementById('floatingContainer'),
-    collGrid: document.getElementById('collectionGrid'),
-    gameScreen: document.getElementById('gameScreen'),
-    collScreen: document.getElementById('collectionScreen'),
+    coin: document.getElementById('coinCount'), spin: document.getElementById('spinCount'),
+    title: document.getElementById('statusTitle'), rarity: document.getElementById('rarityText'),
+    pL1: document.getElementById('pL1'), pNum: document.getElementById('pNum'), pL2: document.getElementById('pL2'), pReg: document.getElementById('pReg'),
+    plate: document.getElementById('plateElement'), glow: document.getElementById('glowEffect'),
+    clickArea: document.getElementById('clickArea'), floatContainer: document.getElementById('floatingContainer'),
+    collGrid: document.getElementById('collectionGrid'), collCountText: document.getElementById('collCountText'), totalCollected: document.getElementById('totalCollected'),
+    safeGrid: document.getElementById('safeGrid'),
+    buyAuto: document.getElementById('buyAutoBtn'), buyLuck: document.getElementById('buyLuckBtn'),
+    flash: document.getElementById('screenFlash'), banner: document.getElementById('rarityBanner'), bannerText: document.getElementById('bannerText'),
+    particles: document.getElementById('particleContainer')
 };
 
-// Случайные элементы
+const screens = {
+    game: document.getElementById('screen-game'), menu: document.getElementById('screen-menu'),
+    collection: document.getElementById('screen-collection'), safe: document.getElementById('screen-safe'), shop: document.getElementById('screen-shop')
+};
+
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const randDigit = () => Math.floor(Math.random() * 10);
 
-// --- ЛОГИКА ГЕНЕРАЦИИ ---
+// --- ГЕНЕРАЦИЯ НОМЕРА ---
 function generateNumber() {
-    // 1. Генерируем базовые части
     let l1 = rand(LETTERS), l2 = rand(LETTERS), l3 = rand(LETTERS);
     let n1 = randDigit(), n2 = randDigit(), n3 = randDigit();
     let numStr = `${n1}${n2}${n3}`;
     let letStr = `${l1}${l2}${l3}`;
     let region = rand(REGIONS);
     
-    // 2. Определяем редкость и награду
-    let rarity = { name: "Обычный", class: "common", color: "var(--common)", reward: 10, weight: 1 };
-    
-    // Шансы (можно менять)
+    let rarity = { name: "Обычный", class: "common", color: "var(--common)", reward: 15 };
+    let luckBonus = state.luckLvl * 5;
     const rng = Math.random() * 100;
-    
-    if ((numStr === "001" || numStr === "777" || numStr === "999" || letStr === "ААА" || letStr === "ХХХ" || letStr === "ООО") && rng < 5) {
-        // МИФИЧЕСКИЙ (Золотой) - Шанс ~0.1%
-        rarity = { name: "Мифический 🌟", class: "mythic", color: "var(--mythic)", reward: 1000 };
-        l1 = "О"; l2 = "О"; l3 = "О"; numStr = "001"; // Принудительно красивый
+
+    // Оценка "блатных" серий
+    if (numStr === "001" || numStr === "777" || numStr === "999" || letStr === "ААА" || letStr === "ХХХ" || letStr === "ООО" || letStr === "АМР" || letStr === "ЕКХ") {
+        if (rng < (3 + luckBonus)) rarity = { name: "МИФИЧЕСКИЙ 🌟", class: "mythic", color: "var(--mythic)", reward: 2000 };
+        else rarity = { name: "ЛЕГЕНДАРНЫЙ", class: "legendary", color: "var(--legendary)", reward: 500 };
     } 
-    else if ((numStr[0] === numStr[1] && numStr[1] === numStr[2]) || numStr === "007" || letStr === "ААА") {
-        // ЛЕГЕНДАРНЫЙ - Шанс ~1%
-        rarity = { name: "Легендарный", class: "legendary", color: "var(--legendary)", reward: 300 };
+    else if ((numStr[0] === numStr[1] && numStr[1] === numStr[2]) || numStr === "007" || (l1 === l2 && l2 === l3) || rng < (10 + luckBonus)) {
+        rarity = { name: "ЛЕГЕНДАРНЫЙ", class: "legendary", color: "var(--legendary)", reward: 500 };
     } 
-    else if ((n1 === n2 || n2 === n3 || n1 === n3) || (l1 === l2 || l2 === l3)) {
-        // РЕДКИЙ - Шанс ~15%
-        rarity = { name: "Редкий", class: "rare", color: "var(--rare)", reward: 75 };
+    else if ((n1 === n2 || n2 === n3 || n1 === n3) || (l1 === l2 || l2 === l3) || rng < (35 + luckBonus)) {
+        rarity = { name: "РЕДКИЙ", class: "rare", color: "var(--rare)", reward: 150 };
     }
-    else if (n1 === 0 || n3 === 0 || region === "777" || region === "99") {
-        // НЕОБЫЧНЫЙ - Шанс ~25%
-        rarity = { name: "Необычный", class: "uncommon", color: "var(--uncommon)", reward: 30 };
+    else if (n1 === 0 || n3 === 0 || region === "777" || region === "99" || rng < (65 + luckBonus)) {
+        rarity = { name: "Необычный", class: "uncommon", color: "var(--uncommon)", reward: 50 };
     }
 
-    return {
-        l1, l2, l3,
-        num: numStr,
-        reg: region,
-        fullString: `${l1} ${numStr} ${l2}${l3} ${region}`,
-        rarity: rarity
-    };
+    return { l1, l2, l3, num: numStr, reg: region, fullString: `${l1} ${numStr} ${l2}${l3} | ${region}`, rarity };
 }
 
-// --- ОТРИСОВКА И ЭФФЕКТЫ ---
-function renderNumber(data) {
-    el.pL1.textContent = data.l1;
-    el.pNum.textContent = data.num;
-    el.pL2.textContent = data.l2;
-    el.pL3.textContent = data.l3;
-    el.pReg.textContent = data.reg;
+// Поиск уникального номера (максимум 50 попыток, чтобы не зависнуть)
+function getUniqueNumber() {
+    for (let i = 0; i < 50; i++) {
+        let num = generateNumber();
+        // Если такого нет ни в коллекции, ни в сейфе — возвращаем
+        if (!state.collection.find(c => c.fullString === num.fullString) && 
+            !state.safe.find(c => c.fullString === num.fullString)) {
+            return num;
+        }
+    }
+    return generateNumber(); // Если всё занято, возвращаем случайный
 }
 
-function playEffects(rarity) {
-    // Обновляем текст
-    el.rarityTxt.textContent = rarity.name;
-    el.rarityTxt.className = `rarity-${rarity.class}`;
+// --- МАГИЯ АНИМАЦИЙ ---
+function playRarityAnimation(rarityClass, color) {
+    el.plate.className = 'plate'; 
+    el.flash.className = 'flash-effect';
+    el.banner.className = 'rarity-banner';
+    el.banner.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
     
-    // Свечение
-    el.glow.style.opacity = "1";
-    el.glow.style.boxShadow = `0 0 40px 10px ${rarity.color}`;
-    
-    // Тряска для редких
-    if (rarity.class === 'legendary' || rarity.class === 'mythic' || rarity.class === 'rare') {
-        el.plate.classList.remove('shake');
-        void el.plate.offsetWidth; // Триггер рефлоу
-        el.plate.classList.add('shake');
+    if (rarityClass !== 'common') {
+        void el.flash.offsetWidth; 
+        el.flash.classList.add('flash-active');
     }
-    
-    // Убираем свечение через время
+
     setTimeout(() => {
-        el.glow.style.opacity = "0";
-    }, 500);
+        if (rarityClass === 'mythic') {
+            el.plate.classList.add('anim-mythic');
+            el.bannerText.textContent = "МИФИЧЕСКИЙ!";
+            el.banner.classList.add('banner-active');
+            createParticles(color, 40);
+        } else if (rarityClass === 'legendary') {
+            el.plate.classList.add('anim-legendary');
+            el.bannerText.textContent = "ЛЕГЕНДАРНЫЙ!";
+            el.banner.classList.add('banner-active');
+            createParticles(color, 25);
+        } else if (rarityClass === 'rare') {
+            el.plate.classList.add('anim-rare');
+            createParticles(color, 10);
+        } else if (rarityClass === 'uncommon') {
+            el.plate.classList.add('anim-uncommon');
+        }
+    }, 50);
 }
 
-function spawnFloatingText(text, color) {
-    const div = document.createElement('div');
-    div.className = 'floating-text';
-    div.textContent = `+${text}`;
-    div.style.color = color;
-    // Случайная позиция по X
-    div.style.left = `${50 + (Math.random() * 20 - 10)}%`;
-    div.style.top = `40%`;
-    
-    el.floatContainer.appendChild(div);
-    setTimeout(() => div.remove(), 800);
+function createParticles(color, count) {
+    el.particles.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.background = color;
+        p.style.boxShadow = `0 0 10px ${color}`;
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 50 + Math.random() * 100;
+        p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+        p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+        el.particles.appendChild(p);
+    }
 }
 
-// --- ГЛАВНАЯ ФУНКЦИЯ КЛИКА ---
-let lastClickTime = 0;
+// --- ЛОГИКА КЛИКА ---
+let lastClick = 0;
 
 function spin() {
     const now = Date.now();
-    
-    // Защита от перегрузки: если кликают чаще чем раз в 20мс (50 кликов в сек), пропускаем
-    // Это защищает от жестких автокликеров, чтобы браузер не завис
-    if (now - lastClickTime < 20) return;
-    lastClickTime = now;
+    if (now - lastClick < 30) return; // Защита от лагов (макс 33 клика в секунду)
+    lastClick = now;
 
-    // Проверка баланса
-    if (state.spins > 0) {
-        state.spins--;
-    } else if (state.coins >= 10) {
-        state.coins -= 10;
-    } else {
-        el.statusTxt.textContent = "Не хватает монет!";
-        el.btn.disabled = true;
-        return;
-    }
+    if (state.spins > 0) { state.spins--; } 
+    else if (state.coins >= 10) { state.coins -= 10; } 
+    else { el.title.textContent = "Нет монет!"; return; }
 
-    // Генерация
-    const result = generateNumber();
-    
-    // Начисление награды
+    state.totalSpins++;
+    const result = getUniqueNumber(); // Берем уникальный номер
     state.coins += result.rarity.reward;
+
+    // Обновляем текст
+    el.pL1.textContent = result.l1; el.pNum.textContent = result.num;
+    el.pL2.textContent = result.l2 + result.l3; el.pReg.textContent = result.reg;
+    el.rarity.textContent = result.rarity.name;
+    el.rarity.style.color = result.rarity.color;
+    el.title.textContent = result.rarity.class === 'common' ? "Ждёт прокрутки" : `Выбил: ${result.rarity.name}`;
     
-    // Визуал
-    renderNumber(result);
-    playEffects(result.rarity);
-    spawnFloatingText(result.rarity.reward, result.rarity.color);
-    
-    // Обновляем текст статуса (только если не спамят)
-    if (result.rarity.class !== 'common') {
-        el.statusTxt.textContent = `Выбил: ${result.rarity.name}!`;
+    playRarityAnimation(result.rarity.class, result.rarity.color);
+
+    el.glow.style.opacity = "1";
+    el.glow.style.boxShadow = `0 0 60px 15px ${result.rarity.color}`;
+    setTimeout(() => el.glow.style.opacity = "0", 600);
+
+    if (result.rarity.class !== 'common' && el.floatContainer.children.length < 5) {
+        const float = document.createElement('div');
+        float.className = 'floating-text';
+        float.style.color = result.rarity.color;
+        float.textContent = `+${result.rarity.reward} ₽`;
+        float.style.left = `${50 + (Math.random() * 20 - 10)}%`;
+        float.style.top = `40%`;
+        el.floatContainer.appendChild(float);
+        setTimeout(() => float.remove(), 800);
     }
 
-    // Добавляем в коллекцию (сохраняем только редкие или ограничиваем количество)
-    if (result.rarity.class !== 'common' || Math.random() > 0.7) {
-        addToCollection(result);
+    // ЛОГИКА ДУБЛИКАТОВ
+    if (!state.collection.find(c => c.fullString === result.fullString)) {
+        // Если номера нет в коллекции — добавляем
+        state.collection.push(result);
+        updateCollection();
+    } else {
+        // Если есть — в сейф
+        if (!state.safe.find(c => c.fullString === result.fullString)) {
+            state.safe.push(result);
+            updateSafe();
+            el.title.textContent = "Дубликат! Номер в сейфе.";
+        }
     }
 
     updateUI();
-    saveData();
-}
-
-// --- КОЛЛЕКЦИЯ ---
-function addToCollection(item) {
-    // Проверка, есть ли уже такой номер
-    const exists = state.collection.find(c => c.fullString === item.fullString);
-    if (exists) return; // Если есть, не добавляем дубликат (или можно добавлять, тут на твой вкус)
-
-    state.collection.unshift(item);
-    if (state.collection.length > 100) state.collection.pop(); // Лимит 100
-    renderCollection();
-}
-
-function renderCollection() {
-    el.collGrid.innerHTML = '';
-    state.collection.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'coll-item';
-        div.style.borderTopColor = item.rarity.color;
-        div.innerHTML = `
-            <div class="coll-plate">${item.fullString}</div>
-            <div style="font-size: 11px; font-weight: bold; color: ${item.rarity.color}; text-shadow: 0 0 5px ${item.rarity.color}">
-                ${item.rarity.name}
-            </div>
-        `;
-        el.collGrid.appendChild(div);
-    });
+    save();
 }
 
 // --- ИНТЕРФЕЙС ---
 function updateUI() {
-    el.coins.textContent = state.coins;
-    el.spins.textContent = state.spins;
+    el.coin.textContent = state.coins;
+    el.spin.textContent = state.spins;
+    el.collCountText.textContent = `${state.collection.length} номеров`;
+    el.totalCollected.textContent = state.collection.length;
     
-    if (state.spins > 0) {
-        el.btn.textContent = `Крутить (Осталось: ${state.spins})`;
-        el.btn.disabled = false;
-    } else if (state.coins >= 10) {
-        el.btn.textContent = `Крутить (10 🪙)`;
-        el.btn.disabled = false;
-    } else {
-        el.btn.textContent = `Нет монет`;
-        el.btn.disabled = true;
+    const autoCost = 500 + (state.autoLvl * 1500);
+    el.buyAuto.textContent = state.autoLvl > 0 ? `Ур. ${state.autoLvl} (${autoCost} ₽)` : `Купить (${autoCost} ₽)`;
+    el.buyAuto.disabled = state.coins < autoCost;
+
+    const luckCost = 300 + (state.luckLvl * 800);
+    el.buyLuck.textContent = state.luckLvl > 0 ? `Ур. ${state.luckLvl} (${luckCost} ₽)` : `Купить (${luckCost} ₽)`;
+    el.buyLuck.disabled = state.coins < luckCost;
+}
+
+function renderGrid(gridElement, array) {
+    gridElement.innerHTML = '';
+    const sorted = [...array].sort((a, b) => {
+        const ranks = { 'mythic': 4, 'legendary': 3, 'rare': 2, 'uncommon': 1, 'common': 0 };
+        return ranks[b.rarity.class] - ranks[a.rarity.class];
+    });
+
+    sorted.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'coll-item';
+        div.style.borderTopColor = item.rarity.color;
+        div.innerHTML = `
+            <div class="coll-plate">${item.l1} ${item.num} ${item.l2}${item.l3}</div>
+            <div class="coll-rarity" style="color: ${item.rarity.color}">${item.rarity.name} • ${item.reg} рег.</div>
+        `;
+        gridElement.appendChild(div);
+    });
+}
+
+function updateCollection() { renderGrid(el.collGrid, state.collection); }
+function updateSafe() { renderGrid(el.safeGrid, state.safe); }
+
+// --- НАВИГАЦИЯ ---
+function switchScreen(screenName) {
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[screenName].classList.add('active');
+}
+
+document.getElementById('menuBtn').addEventListener('click', () => switchScreen('menu'));
+document.getElementById('btnPlay').addEventListener('click', () => switchScreen('game'));
+document.getElementById('btnCollection').addEventListener('click', () => switchScreen('collection'));
+document.getElementById('btnSafe').addEventListener('click', () => switchScreen('safe'));
+document.getElementById('btnShop').addEventListener('click', () => switchScreen('shop'));
+document.getElementById('btnBackColl').addEventListener('click', () => switchScreen('menu'));
+document.getElementById('btnBackSafe').addEventListener('click', () => switchScreen('menu'));
+document.getElementById('btnBackShop').addEventListener('click', () => switchScreen('menu'));
+
+el.clickArea.addEventListener('click', spin);
+
+// --- МАГАЗИН ---
+el.buyAuto.addEventListener('click', () => {
+    const cost = 500 + (state.autoLvl * 1500);
+    if (state.coins >= cost) { state.coins -= cost; state.autoLvl++; updateUI(); save(); startAutoSpinner(); }
+});
+el.buyLuck.addEventListener('click', () => {
+    const cost = 300 + (state.luckLvl * 800);
+    if (state.coins >= cost) { state.coins -= cost; state.luckLvl++; updateUI(); save(); }
+});
+
+let autoInterval;
+function startAutoSpinner() {
+    if (autoInterval) clearInterval(autoInterval);
+    if (state.autoLvl > 0) {
+        const speed = Math.max(100, 1000 - (state.autoLvl * 150));
+        autoInterval = setInterval(spin, speed);
     }
 }
 
-// Сохранение (вызывается при клике, но можно оптимизировать)
-let saveTimeout;
-function saveData() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        localStorage.setItem('numGenState', JSON.stringify(state));
-    }, 500); // Сохраняем раз в полсекунды, чтобы не грузить систему
-}
+function save() { localStorage.setItem('numGenStateV2', JSON.stringify(state)); }
 
-// --- СОБЫТИЯ ---
-el.btn.addEventListener('click', spin);
-el.clickArea.addEventListener('click', spin); // Клик по номеру
-
-// Навигация
-document.getElementById('navGame').addEventListener('click', () => {
-    el.gameScreen.classList.remove('hidden');
-    el.collScreen.classList.add('hidden');
-    document.getElementById('navGame').classList.add('active');
-    document.getElementById('navColl').classList.remove('active');
-});
-
-document.getElementById('navColl').addEventListener('click', () => {
-    el.gameScreen.classList.add('hidden');
-    el.collScreen.classList.remove('hidden');
-    document.getElementById('navColl').classList.add('active');
-    document.getElementById('navGame').classList.remove('active');
-});
-
-// Инициализация
+// Запуск
 updateUI();
-renderCollection();
-// Показываем первый номер при загрузке
-renderNumber(generateNumber());
+updateCollection();
+updateSafe();
+startAutoSpinner();
