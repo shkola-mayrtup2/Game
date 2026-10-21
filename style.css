@@ -10,31 +10,18 @@
 body { background-color: #000; display: flex; justify-content: center; height: 100vh; overflow: hidden; color: var(--text-main); }
 .app-container { width: 100%; max-width: 480px; height: 100%; background-color: var(--bg-main); display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
-/* ЭФФЕКТ ВСПЫШКИ (Исправлен баг с белым экраном) */
-.flash-effect { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    background: #fff; opacity: 0; pointer-events: none; z-index: 9999; 
-    transition: opacity 0.2s ease-out; /* Плавное затухание */
-}
-.flash-active { opacity: 0.8 !important; }
-
-/* Плашка редкости (убрал размытие для скорости) */
+/* Плашка редкости (без размытия) */
 .rarity-banner {
     position: absolute; top: 35%; left: -120%; width: 120%; padding: 20px 0; text-align: center; z-index: 1000;
     transform: skewY(-5deg) rotate(-2deg); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.9);
     border-top: 2px solid rgba(255,255,255,0.4); border-bottom: 2px solid rgba(255,255,255,0.4);
-    background: rgba(0, 0, 0, 0.85); /* Четкий темный фон вместо размытия */
+    background: rgba(0, 0, 0, 0.85);
 }
 .banner-text { font-size: 36px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px #fff; }
 .banner-active { animation: bannerSlide 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
-@keyframes bannerSlide { 
-    0% { left: -120%; } 
-    15% { left: 10%; } 
-    85% { left: 10%; } 
-    100% { left: 120%; } 
-}
+@keyframes bannerSlide { 0% { left: -120%; } 15% { left: 10%; } 85% { left: 10%; } 100% { left: 120%; } }
 
-/* Частицы */
+/* Частицы (искры) */
 .particle-container { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); pointer-events: none; z-index: -1; }
 .particle { position: absolute; width: 8px; height: 8px; border-radius: 50%; opacity: 1; animation: particleBurst 0.8s ease-out forwards; }
 @keyframes particleBurst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
@@ -83,7 +70,7 @@ body { background-color: #000; display: flex; justify-content: center; height: 1
 @keyframes popLegendary { 0% { transform: scale(1); } 20% { transform: scale(1.2) rotate(-5deg); box-shadow: 0 0 50px var(--legendary); } 40% { transform: scale(1.2) rotate(5deg); } 60% { transform: scale(1.1) rotate(-2deg); } 100% { transform: scale(1) rotate(0deg); box-shadow: 0 15px 30px rgba(0,0,0,0.7); } }
 @keyframes popMythic { 0% { transform: scale(1) rotate(0); filter: brightness(1); } 30% { transform: scale(1.4) rotate(10deg); box-shadow: 0 0 80px var(--mythic); filter: brightness(1.5); } 50% { transform: scale(1.4) rotate(-10deg); } 70% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0); box-shadow: 0 15px 30px rgba(0,0,0,0.7); filter: brightness(1); } }
 
-/* Меню и карточки */
+/* Меню */
 .menu-title { font-size: 32px; font-weight: 800; margin: 10px 0 20px 0; }
 .menu-card { background: var(--bg-panel); border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #232736; cursor: pointer; transition: 0.2s; }
 .menu-card:active { transform: scale(0.98); }
@@ -93,7 +80,7 @@ body { background-color: #000; display: flex; justify-content: center; height: 1
 .play-card { background: linear-gradient(135deg, #ff6b00, #d95a00); border: none; }
 .play-card h2 { color: #fff; } .play-card p { color: rgba(255,255,255,0.8); } .play-card .arrow { color: #fff; }
 
-/* Коллекция */
+/* Коллекция, Сейф */
 .header-back { display: flex; align-items: center; margin: 15px 0; gap: 15px; }
 .back-btn { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; font-weight: 500; }
 .header-back h2 { font-size: 24px; font-weight: 800; }
@@ -105,7 +92,7 @@ body { background-color: #000; display: flex; justify-content: center; height: 1
 .coll-plate { background: #fff; color: #111; font-family: 'Oswald', sans-serif; font-size: 16px; padding: 6px; border-radius: 4px; margin-bottom: 6px; font-weight: 700; }
 .coll-rarity { font-size: 10px; font-weight: 700; }
 
-/* МАГАЗИН (Улучшенный вид) */
+/* Магазин */
 .shop-list { display: flex; flex-direction: column; gap: 10px; }
 .shop-item { background: var(--bg-panel); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #232736; position: relative; overflow: hidden; }
 .shop-icon { font-size: 26px; background: #232736; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; border-radius: 12px; position: relative;}
@@ -120,15 +107,6 @@ body { background-color: #000; display: flex; justify-content: center; height: 1
 
 .stats-content { background: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid #232736; line-height: 2; font-size: 15px; }
 
-/* ВСПЛЫВАЮЩИЙ ТЕКСТ (Теперь летит снизу вверх) */
-.floating-text { 
-    position: absolute; font-weight: 900; font-size: 26px; pointer-events: none; 
-    animation: floatUp 1s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; 
-    text-shadow: 0 4px 15px rgba(0,0,0,0.9); z-index: 100; 
-}
-@keyframes floatUp { 
-    0% { opacity: 0; transform: translateY(0) scale(0.5); } 
-    20% { opacity: 1; transform: translateY(-30px) scale(1.1); } 
-    80% { opacity: 1; transform: translateY(-120px) scale(1); } 
-    100% { opacity: 0; transform: translateY(-180px) scale(0.9); } 
-}
+/* Всплывающий текст */
+.floating-text { position: absolute; font-weight: 900; font-size: 26px; pointer-events: none; animation: floatUp 1s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; text-shadow: 0 4px 15px rgba(0,0,0,0.9); z-index: 100; }
+@keyframes floatUp { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 20% { opacity: 1; transform: translateY(-30px) scale(1.1); } 80% { opacity: 1; transform: translateY(-120px) scale(1); } 100% { opacity: 0; transform: translateY(-180px) scale(0.9); } }
