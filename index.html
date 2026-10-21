@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор Номеров</title>
+    <title>Генератор Номеров — Крути и собирай редкие номера!</title>
+    <meta name="description" content="Онлайн-игра Генератор Номеров. Крути рулетку, выбивай редкие, легендарные и мифические номера. Собирай коллекцию и улучшай удачу!">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="app-container">
-    <div id="screenFlash" class="flash-effect"></div>
+    <!-- Баннер редкости (без вспышки) -->
     <div id="rarityBanner" class="rarity-banner"><div class="banner-text" id="bannerText"></div></div>
 
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
     <header class="top-bar">
         <button id="menuBtn" class="icon-btn orange"><div class="burger-icon"></div></button>
         <div class="top-stats">
@@ -20,6 +22,7 @@
         </div>
     </header>
 
+    <!-- ЭКРАН ИГРЫ -->
     <main id="screen-game" class="screen active">
         <div class="status-card">
             <div class="status-left">
@@ -42,6 +45,7 @@
         <div id="floatingContainer"></div>
     </main>
 
+    <!-- ЭКРАН МЕНЮ -->
     <main id="screen-menu" class="screen">
         <h1 class="menu-title">Меню</h1>
         <div class="menu-card play-card" id="btnPlay"><div class="card-content"><h2>ИГРАТЬ</h2><p>Крутить номера</p></div><div class="arrow">></div></div>
@@ -52,15 +56,20 @@
         <div class="menu-card" id="btnStats"><div class="card-content"><h2>СТАТИСТИКА</h2><p>Твои рекорды</p></div><div class="arrow">></div></div>
     </main>
 
+    <!-- ЭКРАН КОЛЛЕКЦИИ -->
     <main id="screen-collection" class="screen">
         <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Коллекция</h2></div>
         <div class="search-bar"><input type="text" id="searchInput" placeholder="Поиск по номеру..."></div>
         <div class="collection-grid" id="collectionGrid"></div>
     </main>
+
+    <!-- ЭКРАН СЕЙФА -->
     <main id="screen-safe" class="screen">
         <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Сейф</h2></div>
         <div class="collection-grid" id="safeGrid"></div>
     </main>
+
+    <!-- ЭКРАН МАГАЗИНА -->
     <main id="screen-shop" class="screen">
         <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Магазин</h2></div>
         <div class="shop-list">
@@ -68,10 +77,14 @@
             <div class="shop-item"><div class="shop-icon">🍀</div><div class="shop-info"><h3>Удача</h3><p>+Шанс на редкие номера</p></div><button id="buyLuckBtn" class="buy-btn">300 ₽</button></div>
         </div>
     </main>
+
+    <!-- ЭКРАН ЗАДАНИЙ -->
     <main id="screen-quests" class="screen">
         <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Задания</h2></div>
         <div id="questsList" class="shop-list"></div>
     </main>
+
+    <!-- ЭКРАН СТАТИСТИКИ -->
     <main id="screen-stats" class="screen">
         <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Статистика</h2></div>
         <div id="statsContent" class="stats-content"></div>
