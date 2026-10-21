@@ -2,12 +2,35 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    
+    <!-- 1. Логотип сайта (Иконка машины на вкладке) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚗</text></svg>">
+    
+    <!-- Код подтверждения Google -->
     <meta name="google-site-verification" content="nP5pDwFyfWRz8EYlVo-_0ayGmT4FKbNgFf7-J1Zl19I" />
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Генератор Номеров — Крути и собирай редкие номера!</title>
-    <meta name="description" content="Онлайн-игра Генератор Номеров. Крути рулетку, выбивай редкие, легендарные и мифические номера. Собирай коллекцию и улучшай удачу!">
+    
+    <!-- SEO заголовки для поиска -->
+    <title>Генератор Номеров — Играть онлайн бесплатно</title>
+    <meta name="description" content="Генератор Номеров — это онлайн-игра, где ты крутишь рулетку и собираешь коллекцию редких автомобильных номеров. Выбивай легендарные номера и зарабатывай монеты!">
+    <meta name="keywords" content="генератор номеров, игра генератор номеров, крутить номера, авто номера игра, коллекция номеров">
+    
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 2. Код для Google: сообщаем, что это игра -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Генератор Номеров",
+      "description": "Онлайн игра для прокрутки и коллекционирования редких автомобильных номеров.",
+      "genre": "Casual",
+      "gamePlatform": "Web browser",
+      "applicationCategory": "Game"
+    }
+    </script>
 </head>
 <body>
 <div class="app-container">
@@ -25,6 +48,9 @@
 
     <!-- ЭКРАН ИГРЫ -->
     <main id="screen-game" class="screen active">
+        <!-- 3. Невидимый заголовок для поисковиков -->
+        <h1 style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Генератор Номеров</h1>
+
         <div class="status-card">
             <div class="status-left">
                 <span id="statusTitle">Ждёт первый номер</span>
