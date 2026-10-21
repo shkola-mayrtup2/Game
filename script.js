@@ -1,14 +1,11 @@
-// База данных
 const REGIONS = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","102","103","116","123","125","126","134","136","138","142","150","152","154","156","159","161","163","164","166","173","174","177","178","186","190","193","196","197","199","750","777","799","977","999"];
 const LETTERS = "АВЕКМНОРСТУХ";
 
-// Состояние игры
 let state = JSON.parse(localStorage.getItem('numGenStateV4')) || {
     coins: 1000, spins: 100, collection: [], safe: [], autoLvl: 0, luckLvl: 0,
     totalSpins: 0, quests: { spin10: false, rare1: false }
 };
 
-// DOM-элементы
 const el = {
     coin: document.getElementById('coinCount'), spin: document.getElementById('spinCount'),
     title: document.getElementById('statusTitle'), rarity: document.getElementById('rarityText'),
@@ -25,7 +22,6 @@ const el = {
 };
 const screens = { game: document.getElementById('screen-game'), menu: document.getElementById('screen-menu'), collection: document.getElementById('screen-collection'), safe: document.getElementById('screen-safe'), shop: document.getElementById('screen-shop'), quests: document.getElementById('screen-quests'), stats: document.getElementById('screen-stats') };
 
-// --- Генерация ---
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const randDigit = () => Math.floor(Math.random() * 10);
 
@@ -57,16 +53,43 @@ function getUniqueNumber() {
     return generateNumber();
 }
 
-// --- Анимации ---
+// --- ИСПРАВЛЕННЫЕ АНИМАЦИИ ---
 function playRarityAnimation(rarityClass, color) {
-    el.plate.className = 'plate'; el.flash.className = 'flash-effect'; el.banner.className = 'rarity-banner';
+    // 1. Сброс старых анимаций
+    el.plate.className = 'plate'; 
+    el.banner.className = 'rarity-banner';
+    
+    // 2. Принудительное отключение вспышки (лечит белый экран)
+    el.flash.classList.remove('flash-active');
+    el.flash.style.opacity = '0';
+    
+    // 3. Вспышка
+    if (rarityClass !== 'common') {
+        el.flash.style.opacity = '0.7';
+        // Через 150мс плавно убираем (CSS transition сделает остальное)
+        setTimeout(() => { el.flash.style.opacity = '0'; }, 150);
+    }
+
+    // 4. Запуск анимации номера и баннера
     el.banner.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
-    if (rarityClass !== 'common') { void el.flash.offsetWidth; el.flash.classList.add('flash-active'); }
+    
     setTimeout(() => {
-        if (rarityClass === 'mythic') { el.plate.classList.add('anim-mythic'); el.bannerText.textContent = "МИФИЧЕСКИЙ!"; el.banner.classList.add('banner-active'); createParticles(color, 40); }
-        else if (rarityClass === 'legendary') { el.plate.classList.add('anim-legendary'); el.bannerText.textContent = "ЛЕГЕНДАРНЫЙ!"; el.banner.classList.add('banner-active'); createParticles(color, 25); }
-        else if (rarityClass === 'rare') { el.plate.classList.add('anim-rare'); createParticles(color, 10); }
-        else if (rarityClass === 'uncommon') { el.plate.classList.add('anim-uncommon'); }
+        if (rarityClass === 'mythic') {
+            el.plate.classList.add('anim-mythic');
+            el.bannerText.textContent = "МИФИЧЕСКИЙ!";
+            el.banner.classList.add('banner-active');
+            createParticles(color, 40);
+        } else if (rarityClass === 'legendary') {
+            el.plate.classList.add('anim-legendary');
+            el.bannerText.textContent = "ЛЕГЕНДАРНЫЙ!";
+            el.banner.classList.add('banner-active');
+            createParticles(color, 25);
+        } else if (rarityClass === 'rare') {
+            el.plate.classList.add('anim-rare');
+            createParticles(color, 10);
+        } else if (rarityClass === 'uncommon') {
+            el.plate.classList.add('anim-uncommon');
+        }
     }, 50);
 }
 
@@ -80,7 +103,7 @@ function createParticles(color, count) {
     }
 }
 
-// --- Основная логика ---
+// --- ОСНОВНАЯ ЛОГИКА ---
 let lastClick = 0;
 function spin() {
     const now = Date.now();
@@ -106,9 +129,10 @@ function spin() {
     el.glow.style.opacity = "1"; el.glow.style.boxShadow = `0 0 60px 15px ${result.rarity.color}`;
     setTimeout(() => el.glow.style.opacity = "0", 600);
 
+    // Вылетающие монеты (опустил ниже, чтобы не мешать баннеру)
     if (result.rarity.class !== 'common' && el.floatContainer.children.length < 5) {
         const float = document.createElement('div'); float.className = 'floating-text'; float.style.color = result.rarity.color;
-        float.textContent = `+${result.rarity.reward} ₽`; float.style.left = `${50 + (Math.random() * 20 - 10)}%`; float.style.top = `40%`;
+        float.textContent = `+${result.rarity.reward} ₽`; float.style.left = `${50 + (Math.random() * 20 - 10)}%`; float.style.top = `65%`;
         el.floatContainer.appendChild(float); setTimeout(() => float.remove(), 800);
     }
 
@@ -121,7 +145,6 @@ function spin() {
     updateUI(); save();
 }
 
-// --- Задания ---
 function checkQuests(type) {
     if (type === 'spin' && state.totalSpins >= 10 && !state.quests.spin10) { state.quests.spin10 = true; state.coins += 500; }
     if (type === 'rare' && !state.quests.rare1) { state.quests.rare1 = true; state.coins += 1000; }
@@ -135,13 +158,28 @@ function renderQuests() {
     `;
 }
 
-// --- Интерфейс ---
+// --- ОБНОВЛЕННЫЙ МАГАЗИН ---
 function updateUI() {
     el.coin.textContent = state.coins; el.spin.textContent = state.spins;
     el.collCountText.textContent = `${state.collection.length} номеров`;
     el.safeCountText.textContent = `${state.safe.length} дубликатов`;
-    const autoCost = 500 + (state.autoLvl * 1500); el.buyAuto.textContent = state.autoLvl > 0 ? `Ур. ${state.autoLvl} (${autoCost} ₽)` : `Купить (${autoCost} ₽)`; el.buyAuto.disabled = state.coins < autoCost;
-    const luckCost = 300 + (state.luckLvl * 800); el.buyLuck.textContent = state.luckLvl > 0 ? `Ур. ${state.luckLvl} (${luckCost} ₽)` : `Купить (${luckCost} ₽)`; el.buyLuck.disabled = state.coins < luckCost;
+    
+    // Магазин Автокрутки
+    const autoCost = 500 + (state.autoLvl * 1500);
+    if (state.autoLvl > 0) {
+        el.buyAuto.parentElement.querySelector('.shop-icon').innerHTML = `🤖<div class="level-badge">Ур.${state.autoLvl}</div>`;
+    }
+    el.buyAuto.textContent = state.autoLvl > 0 ? `Улучшить (${autoCost} ₽)` : `Купить (${autoCost} ₽)`;
+    el.buyAuto.disabled = state.coins < autoCost;
+
+    // Магазин Удачи
+    const luckCost = 300 + (state.luckLvl * 800);
+    if (state.luckLvl > 0) {
+        el.buyLuck.parentElement.querySelector('.shop-icon').innerHTML = `🍀<div class="level-badge">Ур.${state.luckLvl}</div>`;
+    }
+    el.buyLuck.textContent = state.luckLvl > 0 ? `Улучшить (${luckCost} ₽)` : `Купить (${luckCost} ₽)`;
+    el.buyLuck.disabled = state.coins < luckCost;
+    
     renderStats();
 }
 
@@ -169,7 +207,7 @@ function renderStats() {
     `;
 }
 
-// --- Навигация ---
+// --- НАВИГАЦИЯ ---
 function switchScreen(screenName) { Object.values(screens).forEach(s => s.classList.remove('active')); screens[screenName].classList.add('active'); }
 document.getElementById('menuBtn').addEventListener('click', () => switchScreen('menu'));
 document.getElementById('btnPlay').addEventListener('click', () => switchScreen('game'));
@@ -182,13 +220,29 @@ document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('cl
 el.clickArea.addEventListener('click', spin);
 el.searchInput.addEventListener('input', updateCollection);
 
-// --- Магазин ---
-el.buyAuto.addEventListener('click', () => { const cost = 500 + (state.autoLvl * 1500); if (state.coins >= cost) { state.coins -= cost; state.autoLvl++; updateUI(); save(); startAutoSpinner(); } });
-el.buyLuck.addEventListener('click', () => { const cost = 300 + (state.luckLvl * 800); if (state.coins >= cost) { state.coins -= cost; state.luckLvl++; updateUI(); save(); } });
+// --- ПОКУПКИ (С эффектом) ---
+el.buyAuto.addEventListener('click', () => {
+    const cost = 500 + (state.autoLvl * 1500);
+    if (state.coins >= cost) { 
+        state.coins -= cost; state.autoLvl++; 
+        el.buyAuto.classList.add('bought');
+        setTimeout(() => el.buyAuto.classList.remove('bought'), 300);
+        updateUI(); save(); startAutoSpinner(); 
+    }
+});
+
+el.buyLuck.addEventListener('click', () => {
+    const cost = 300 + (state.luckLvl * 800);
+    if (state.coins >= cost) { 
+        state.coins -= cost; state.luckLvl++; 
+        el.buyLuck.classList.add('bought');
+        setTimeout(() => el.buyLuck.classList.remove('bought'), 300);
+        updateUI(); save(); 
+    }
+});
 
 let autoInterval;
 function startAutoSpinner() { if (autoInterval) clearInterval(autoInterval); if (state.autoLvl > 0) { const speed = Math.max(100, 1000 - (state.autoLvl * 150)); autoInterval = setInterval(spin, speed); } }
 function save() { localStorage.setItem('numGenStateV4', JSON.stringify(state)); }
 
-// Запуск
 updateUI(); updateCollection(); updateSafe(); renderQuests(); startAutoSpinner();
