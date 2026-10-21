@@ -8,111 +8,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
 <div class="app-container">
-    <!-- Вспышка и баннеры для анимаций -->
     <div id="screenFlash" class="flash-effect"></div>
-    <div id="rarityBanner" class="rarity-banner">
-        <div class="banner-text" id="bannerText">ЛЕГЕНДАРНЫЙ!</div>
-    </div>
+    <div id="rarityBanner" class="rarity-banner"><div class="banner-text" id="bannerText"></div></div>
 
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
     <header class="top-bar">
-        <button id="menuBtn" class="icon-btn orange">
-            <div class="burger-icon"></div>
-        </button>
+        <button id="menuBtn" class="icon-btn orange"><div class="burger-icon"></div></button>
         <div class="top-stats">
             <div class="stat-pill"><span id="coinCount">0</span> ₽</div>
             <div class="stat-pill">🎰 <span id="spinCount">100</span></div>
         </div>
     </header>
 
-    <!-- ЭКРАН ИГРЫ -->
     <main id="screen-game" class="screen active">
         <div class="status-card">
             <div class="status-left">
-                <span id="statusTitle">Ждёт прокрутки</span>
+                <span id="statusTitle">Ждёт первый номер</span>
                 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             </div>
             <div class="status-right"><span id="statusAction">Крутани номер</span></div>
         </div>
-
         <div class="plate-wrapper" id="clickArea">
             <div class="particle-container" id="particleContainer"></div>
             <div class="plate" id="plateElement">
-                <div class="plate-main">
-                    <span id="pL1">А</span><span id="pNum">000</span><span id="pL2">АА</span>
-                </div>
-                <div class="plate-region">
-                    <span id="pReg">77</span><div class="flag">RUS 🇷🇺</div>
-                </div>
+                <div class="plate-main"><span id="pL1">А</span><span id="pNum">000</span><span id="pL2">АА</span></div>
+                <div class="plate-region"><span id="pReg">77</span><div class="flag">RUS 🇷🇺</div></div>
             </div>
             <div class="glow-effect" id="glowEffect"></div>
         </div>
-
         <div class="rarity-label" id="rarityText">Обычный номер</div>
         <div class="tap-hint">Нажми на номер, чтобы крутить</div>
-        
         <div class="country-selector">🇷🇺 Россия <span class="change-btn">сменить ⇄</span></div>
         <div id="floatingContainer"></div>
     </main>
 
-    <!-- ЭКРАН МЕНЮ -->
     <main id="screen-menu" class="screen">
         <h1 class="menu-title">Меню</h1>
-        <div class="menu-card play-card" id="btnPlay">
-            <div class="card-content"><h2>ИГРАТЬ</h2><p>Крутить номера</p></div><div class="arrow">></div>
-        </div>
-        <div class="menu-card coll-card" id="btnCollection">
-            <div class="card-content"><h2>КОЛЛЕКЦИЯ</h2><p id="collCountText">0 номеров</p></div><div class="arrow">></div>
-        </div>
-        <div class="menu-card safe-card" id="btnSafe">
-            <div class="card-content"><h2>СЕЙФ</h2><p>Дубликаты номеров</p></div><div class="arrow">></div>
-        </div>
-        <div class="menu-card shop-card" id="btnShop">
-            <div class="card-content"><h2>МАГАЗИН</h2><p>Улучшения за монеты</p></div><div class="arrow">></div>
-        </div>
+        <div class="menu-card play-card" id="btnPlay"><div class="card-content"><h2>ИГРАТЬ</h2><p>Крутить номера</p></div><div class="arrow">></div></div>
+        <div class="menu-card" id="btnCollection"><div class="card-content"><h2>КОЛЛЕКЦИЯ</h2><p id="collCountText">0 номеров</p></div><div class="arrow">></div></div>
+        <div class="menu-card" id="btnSafe"><div class="card-content"><h2>СЕЙФ</h2><p id="safeCountText">0 дубликатов</p></div><div class="arrow">></div></div>
+        <div class="menu-card" id="btnShop"><div class="card-content"><h2>МАГАЗИН</h2><p>Улучшения за рубли</p></div><div class="arrow">></div></div>
+        <div class="menu-card" id="btnQuests"><div class="card-content"><h2>ЗАДАНИЯ</h2><p>Ежедневные квесты</p></div><div class="arrow">></div></div>
+        <div class="menu-card" id="btnStats"><div class="card-content"><h2>СТАТИСТИКА</h2><p>Твои рекорды</p></div><div class="arrow">></div></div>
     </main>
 
-    <!-- ЭКРАН КОЛЛЕКЦИИ -->
     <main id="screen-collection" class="screen">
-        <div class="header-back">
-            <button class="back-btn" id="btnBackColl">← Назад</button>
-            <h2>Коллекция</h2>
-        </div>
-        <div class="coll-stats">
-            <div class="stat-box"><span class="stat-label">Собрано</span><span class="stat-value" id="totalCollected">0</span></div>
-        </div>
+        <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Коллекция</h2></div>
+        <div class="search-bar"><input type="text" id="searchInput" placeholder="Поиск по номеру..."></div>
         <div class="collection-grid" id="collectionGrid"></div>
     </main>
-
-    <!-- ЭКРАН СЕЙФА -->
     <main id="screen-safe" class="screen">
-        <div class="header-back">
-            <button class="back-btn" id="btnBackSafe">← Назад</button>
-            <h2>Сейф (Дубликаты)</h2>
-        </div>
+        <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Сейф</h2></div>
         <div class="collection-grid" id="safeGrid"></div>
     </main>
-
-    <!-- ЭКРАН МАГАЗИНА -->
     <main id="screen-shop" class="screen">
-        <div class="header-back">
-            <button class="back-btn" id="btnBackShop">← Назад</button>
-            <h2>Магазин</h2>
-        </div>
+        <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Магазин</h2></div>
         <div class="shop-list">
-            <div class="shop-item">
-                <div class="shop-icon">🤖</div>
-                <div class="shop-info"><h3>Автокрутка</h3><p>Крутит автоматически</p></div>
-                <button id="buyAutoBtn" class="buy-btn">500 ₽</button>
-            </div>
-            <div class="shop-item">
-                <div class="shop-icon">🍀</div>
-                <div class="shop-info"><h3>Удача</h3><p>+Шанс на редкие номера</p></div>
-                <button id="buyLuckBtn" class="buy-btn">300 ₽</button>
-            </div>
+            <div class="shop-item"><div class="shop-icon">🤖</div><div class="shop-info"><h3>Автокрутка</h3><p>Крутит автоматически</p></div><button id="buyAutoBtn" class="buy-btn">500 ₽</button></div>
+            <div class="shop-item"><div class="shop-icon">🍀</div><div class="shop-info"><h3>Удача</h3><p>+Шанс на редкие номера</p></div><button id="buyLuckBtn" class="buy-btn">300 ₽</button></div>
         </div>
+    </main>
+    <main id="screen-quests" class="screen">
+        <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Задания</h2></div>
+        <div id="questsList" class="shop-list"></div>
+    </main>
+    <main id="screen-stats" class="screen">
+        <div class="header-back"><button class="back-btn" data-back>← Назад</button><h2>Статистика</h2></div>
+        <div id="statsContent" class="stats-content"></div>
     </main>
 </div>
 <script src="script.js"></script>
