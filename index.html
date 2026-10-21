@@ -2,65 +2,71 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Номерная Лихорадка</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Подключаем шрифты Google -->
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Шапка с балансом -->
+    <div class="app-container" id="appContainer">
+        <!-- Шапка -->
         <header class="top-bar">
-            <div class="balance">
-                <span class="coin-icon">🪙</span>
+            <div class="stat-box">
+                <span class="icon">🪙</span>
                 <span id="coinCount">0</span>
             </div>
-            <div class="balance">
-                <span class="spin-icon">🎰</span>
+            <div class="stat-box">
+                <span class="icon">🎰</span>
                 <span id="spinCount">100</span>
             </div>
         </header>
 
-        <!-- Экран игры -->
+        <!-- Игровой экран -->
         <main id="gameScreen">
-            <div class="status-bar">
-                <span id="statusText">Ждёт прокрутки</span>
+            <div class="status-panel" id="statusPanel">
+                <span id="statusText">Крути номер!</span>
                 <span id="rarityText" class="rarity-common">Обычный</span>
             </div>
 
-            <!-- Сам номерной знак -->
-            <div class="plate-container" id="plateContainer">
-                <div class="plate">
-                    <div class="plate-main">
-                        <span id="plateLetter1">A</span>
-                        <span id="plateNumber">000</span>
-                        <span id="plateLetter2">A</span>
-                        <span id="plateLetter3">A</span>
+            <!-- Зона с номером (кликабельная) -->
+            <div class="plate-wrapper" id="clickArea">
+                <div class="plate" id="plateElement">
+                    <div class="rivet top-left"></div>
+                    <div class="rivet top-right"></div>
+                    <div class="rivet bottom-left"></div>
+                    <div class="rivet bottom-right"></div>
+                    
+                    <div class="plate-content">
+                        <span id="pL1">A</span>
+                        <span id="pNum">000</span>
+                        <span id="pL2">A</span>
+                        <span id="pL3">A</span>
                     </div>
                     <div class="plate-region">
-                        <span id="plateRegion">77</span>
-                        <div class="plate-country">RUS 🇷🇺</div>
+                        <span id="pReg">77</span>
+                        <span class="flag">RUS</span>
                     </div>
                 </div>
+                <div class="glow-effect" id="glowEffect"></div>
             </div>
 
-            <button id="spinBtn" class="main-btn">Крутить номер (10 🪙)</button>
-            <p class="hint">Нажми на кнопку, чтобы получить новый номер!</p>
+            <button id="spinBtn" class="main-btn">Крутить!</button>
+            <p class="hint">Жми на номер или кнопку. Можно кликать очень быстро!</p>
+            
+            <!-- Контейнер для всплывающих монет -->
+            <div id="floatingContainer"></div>
         </main>
 
         <!-- Экран коллекции -->
-        <main id="collectionScreen" style="display: none;">
-            <h2>Твоя коллекция</h2>
-            <div id="collectionGrid" class="collection-grid">
-                <!-- Сюда будут добавляться номера -->
-            </div>
+        <main id="collectionScreen" class="hidden">
+            <h2>Коллекция</h2>
+            <div id="collectionGrid" class="collection-grid"></div>
         </main>
 
-        <!-- Нижнее меню -->
+        <!-- Меню -->
         <nav class="bottom-nav">
-            <button id="navGame" class="nav-btn active">Играть</button>
-            <button id="navCollection" class="nav-btn">Коллекция</button>
+            <button id="navGame" class="nav-btn active">🎰 Крутить</button>
+            <button id="navColl" class="nav-btn">💼 Коллекция</button>
         </nav>
     </div>
     <script src="script.js"></script>
