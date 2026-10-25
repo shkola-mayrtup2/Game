@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://shkola-mayrtup2.github.io/Game/sitemap.xml
